@@ -1,10 +1,15 @@
-﻿namespace WebApplication1.Repositories;
+﻿using WebApplication1.Models.DTO_s;
+
+namespace WebApplication1.Repositories;
 
 public interface IProductRepository
 {
-    public bool DoesProductExist(int idProduct);
-    public bool DoesWarehouseExist(int idWarehouse);
-    public bool WasProductOrdered(int idProduct, int amount);
-    public bool CheckIfMistake(int idOrder);
-    
+    Task<bool> DoesProductExist(AddProduct addProduct);
+    Task<bool> DoesWarehouseExist(AddProduct addProduct);
+    Task<bool> WasProductOrdered(AddProduct addProduct);
+    Task<bool> CheckIfMistake(AddProduct addProduct);
+    Task UpdateFullfilledAt(AddProduct addProduct);
+
+    Task InputRecord(AddProduct addProduct);
+    Task<int> GetId(AddProduct addProduct);
 }

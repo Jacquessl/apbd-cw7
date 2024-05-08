@@ -16,21 +16,35 @@ public class WarehouseController : ControllerBase
         _productRepository = productRepository;
     }
     [HttpPost]
-    public IActionResult PostProduct(AddProduct addProduct)
+    public async Task<IActionResult> PostProduct(AddProduct addProduct)
     {
-        if (!_productRepository.DoesProductExist(addProduct.IdProduct)
-            || !_productRepository.DoesWarehouseExist(addProduct.IdWarehouse))
+        if (!await _productRepository.DoesProductExist(addProduct)
+            || !await _productRepository.DoesWarehouseExist(addProduct))
+            return NotFound("Product or Warehouse does not exist");
+        if (!await _productRepository.WasProductOrdered(addProduct))
         {
-            return NotFound();
+            return NotFound("Product Was Not Ordered");
         }
-            try
+
+        if (await _productRepository.CheckIfMistake(addProduct))
+        {
+            return Conflict("There's an order with this order ID");
+        }
+        try
+        {
+            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-                {
-                    await _productRepository.RemoveProcedures();
-                    await _productRepository.
-                }
+                await _productRepository.UpdateFullfilledAt(addProduct);
+                await _productRepository.InputRecord(addProduct);
+                
+                scope.Complete();
             }
-        return Ok();
+        }
+        catch (TransactionAbortedException ex)
+        {
+            Console.WriteLine("TransactionAbortedException Message: {0}", ex.Message);
+            throw;
+        }
+        return Ok(await _productRepository.GetId(addProduct));
     }
 }
