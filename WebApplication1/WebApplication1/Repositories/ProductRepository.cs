@@ -130,4 +130,50 @@ public class ProductRepository : IProductRepository
         int.TryParse(reader.ToString(), out int id);
         return id;
     }
+
+    public async Task<int> AddProductProcedure(AddProduct addProduct)
+    {
+        try
+        {
+            var query =
+                "DECLARE @CurrentDateTime DATETIME; SET @CurrentDateTime = GETDATE(); EXEC AddProductToWarehouse @IdProduct = @idProduct2, @IdWarehouse = @idWarehouse2, @Amount = @amount2, @CreatedAt = @CurrentDateTime;";
+            using SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("Default"));
+            using SqlCommand command = new SqlCommand();
+            await connection.OpenAsync();
+            command.Connection = connection;
+            command.CommandText = query;
+            command.Parameters.AddWithValue("@idProduct2", addProduct.IdProduct);
+            command.Parameters.AddWithValue("@amount2", addProduct.Amount);
+            command.Parameters.AddWithValue("@idWarehouse2", addProduct.IdWarehouse);
+            int.TryParse(command.ExecuteScalar().ToString(), out int id);
+            return id;
+        }
+        catch (SqlException ex)
+        {
+            return -1;
+        }
+    }
+
+    public async Task<String> AddProductException(AddProduct addProduct)
+    {
+        try
+        {
+            var query =
+                "DECLARE @CurrentDateTime DATETIME; SET @CurrentDateTime = GETDATE(); EXEC AddProductToWarehouse @IdProduct = @idProduct2, @IdWarehouse = @idWarehouse2, @Amount = @amount2, @CreatedAt = @CurrentDateTime;";
+            using SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("Default"));
+            using SqlCommand command = new SqlCommand();
+            await connection.OpenAsync();
+            command.Connection = connection;
+            command.CommandText = query;
+            command.Parameters.AddWithValue("@idProduct2", addProduct.IdProduct);
+            command.Parameters.AddWithValue("@amount2", addProduct.Amount);
+            command.Parameters.AddWithValue("@idWarehouse2", addProduct.IdWarehouse);
+            int.TryParse(command.ExecuteScalar().ToString(), out int id);
+            return "";
+        }
+        catch (SqlException ex)
+        {
+            return ex.Message;
+        }
+    }
 }

@@ -47,4 +47,17 @@ public class WarehouseController : ControllerBase
         }
         return Ok(await _productRepository.GetId(addProduct));
     }
+
+    [HttpPost]
+    [Route("zadanie2")]
+    public async Task<IActionResult> PostProduct2(AddProduct addProduct)
+    {
+        var value = _productRepository.AddProductProcedure(addProduct);
+        if (await value == -1)
+        {
+            return NotFound(await _productRepository.AddProductException(addProduct));
+        }
+
+        return Ok(await value);
+    }
 }

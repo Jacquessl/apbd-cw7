@@ -12,4 +12,6 @@ public interface IProductRepository
 
     Task InputRecord(AddProduct addProduct);
     Task<int> GetId(AddProduct addProduct);
+    Task<int> AddProductProcedure(AddProduct addProduct);
+    Task<String> AddProductException(AddProduct addProduct);
 }
